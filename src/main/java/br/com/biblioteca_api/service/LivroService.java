@@ -9,6 +9,7 @@ import br.com.biblioteca_api.repository.LivroRepository;
 import br.com.biblioteca_api.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,9 +25,14 @@ public class LivroService {
     private final UsuarioRepository usuarioRepository;
     private final ObjectMapper objectMapper;
 
-    public LivroDTO salvar(LivroDTO dto) {
-        LivroEntity livro = objectMapper.convertValue(dto, LivroEntity.class);
-        LivroEntity livroSalvo = livroRepository.save(livro);
+    public LivroDTO salvar(LivroDTO dto) throws RegraDeNegocioException {
+        Optional<LivroEntity> optionalLivro = livroRepository.findByTitulo(dto.getTitulo());
+
+        if(optionalLivro.isPresent()) {
+            throw new RegraDeNegocioException("O livro já está cadastrado!", HttpStatus.BAD_REQUEST);
+        }
+
+        LivroEntity livroSalvo = optionalLivro.get();
         return objectMapper.convertValue(livroSalvo, LivroDTO.class);
     }
 
@@ -34,19 +40,19 @@ public class LivroService {
         Optional<LivroEntity> optionalLivro = livroRepository.findById(id);
 
         if (!optionalLivro.isPresent()) {
-            throw new RegraDeNegocioException("Id do livro não encontrado!");
+            throw new RegraDeNegocioException("Id do livro não encontrado!", HttpStatus.BAD_REQUEST);
         }
 
         return objectMapper.convertValue(optionalLivro, LivroDTO.class);
     }
 
-    public void deletar(UUID id) {
+    public void deletar(UUID id) throws RegraDeNegocioException {
         Optional<LivroEntity> optionalLivro = livroRepository.findById(id);
 
         if(optionalLivro.isPresent()) {
             livroRepository.deleteById(id);
         } else {
-            throw new RegraDeNegocioException("Id não encontrado!");
+            throw new RegraDeNegocioException("Id não encontrado!", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -58,15 +64,15 @@ public class LivroService {
                     .map(livro -> objectMapper.convertValue(livro, LivroDTO.class))
                     .collect(Collectors.toList());
         } else  {
-            throw new RegraDeNegocioException("Gênero não encontrado!");
+            throw new RegraDeNegocioException("Gênero não encontrado!", HttpStatus.BAD_REQUEST);
         }
     }
 
-    public LivroDTO atualizar(UUID id, LivroDTO dto) {
+    public LivroDTO atualizar(UUID id, LivroDTO dto) throws RegraDeNegocioException {
         Optional<LivroEntity> optionalLivro = livroRepository.findById(id);
 
         if (!optionalLivro.isPresent()) {
-            throw new RegraDeNegocioException("Livro não encontrado!");
+            throw new RegraDeNegocioException("Livro não encontrado!", HttpStatus.BAD_REQUEST);
         }
 
         LivroEntity livro = optionalLivro.get();
@@ -88,17 +94,17 @@ public class LivroService {
                 .collect(Collectors.toList());
     }
 
-    public LivroDTO autalizarLivroComUsuario(String titulo, String cpf) {
+    public LivroDTO autalizarLivroComUsuario(String titulo, String cpf) throws RegraDeNegocioException {
         Optional<LivroEntity> optionalLivro = livroRepository.findByTitulo(titulo);
         Optional<UsuarioEntity> optionalUsuario = usuarioRepository.findByCpf(cpf);
 
 
         if(optionalLivro.isEmpty()) {
-            throw new RegraDeNegocioException("Livro não encontrado");
+            throw new RegraDeNegocioException("Livro não encontrado", HttpStatus.BAD_REQUEST);
         }
 
         if(optionalUsuario.isEmpty()) {
-            throw new RegraDeNegocioException("Usuário não encontrado!");
+            throw new RegraDeNegocioException("Usuário não encontrado!", HttpStatus.BAD_REQUEST);
         }
 
         LivroEntity livro = optionalLivro.get();
