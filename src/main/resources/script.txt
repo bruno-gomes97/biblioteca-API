@@ -5,7 +5,7 @@ create table tb_livro (
 	genero varchar(30) not null,
 	data_lancamento date not null,
 	isbn varchar(20) not null unique,
-	id_usuario UUID not null references tb_usuario(id)
+	id_usuario UUID references tb_usuario(id)
 )
 
 create table tb_usuario (
@@ -13,6 +13,7 @@ create table tb_usuario (
 	nome varchar(100) not null,
 	email varchar(150) not null unique,
 	telefone varchar(11) not null unique,
+	cpf varchar(11) not null unique,
 	endereco varchar(100) not null,
 	data_cadastro timestamp
 )

@@ -52,4 +52,10 @@ public class LivroController {
                                               @RequestBody LivroDTO dto) {
         return new ResponseEntity<>(livroService.atualizar(id, dto), HttpStatus.NO_CONTENT);
     }
+
+    @PutMapping("atualizar")
+    public ResponseEntity<LivroDTO> atualizarLivroComUsuario(@RequestParam String nomeLivro,
+                                                             @RequestParam String cpf) {
+        return new ResponseEntity<>(livroService.autalizarLivroComUsuario(nomeLivro, cpf), HttpStatus.OK);
+    }
 }

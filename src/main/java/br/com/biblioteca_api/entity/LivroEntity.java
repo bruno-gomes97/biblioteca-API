@@ -1,6 +1,7 @@
 package br.com.biblioteca_api.entity;
 
 import br.com.biblioteca_api.enums.Genero;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,4 +38,9 @@ public class LivroEntity {
 
     @Column(name = "isbn")
     private String isbn;
+
+    @JoinColumn(name = "id_usuario")
+    @OneToOne
+    @JsonBackReference
+    private UsuarioEntity usuario;
 }

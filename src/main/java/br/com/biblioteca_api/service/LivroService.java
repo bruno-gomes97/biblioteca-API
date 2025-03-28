@@ -2,9 +2,11 @@ package br.com.biblioteca_api.service;
 
 import br.com.biblioteca_api.dto.LivroDTO;
 import br.com.biblioteca_api.entity.LivroEntity;
+import br.com.biblioteca_api.entity.UsuarioEntity;
 import br.com.biblioteca_api.enums.Genero;
 import br.com.biblioteca_api.exceptions.RegraDeNegocioException;
 import br.com.biblioteca_api.repository.LivroRepository;
+import br.com.biblioteca_api.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class LivroService {
 
     private final LivroRepository livroRepository;
+    private final UsuarioRepository usuarioRepository;
     private final ObjectMapper objectMapper;
 
     public LivroDTO salvar(LivroDTO dto) {
@@ -83,5 +86,24 @@ public class LivroService {
         return lista.stream()
                 .map(livro -> objectMapper.convertValue(livro, LivroDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    public LivroDTO autalizarLivroComUsuario(String titulo, String cpf) {
+        Optional<LivroEntity> optionalLivro = livroRepository.findByTitulo(titulo);
+        Optional<UsuarioEntity> optionalUsuario = usuarioRepository.findByCpf(cpf);
+
+
+        if(optionalLivro.isEmpty()) {
+            throw new RegraDeNegocioException("Livro não encontrado");
+        }
+
+        if(optionalUsuario.isEmpty()) {
+            throw new RegraDeNegocioException("Usuário não encontrado!");
+        }
+
+        LivroEntity livro = optionalLivro.get();
+        livro.setUsuario(optionalUsuario.get());
+
+        return objectMapper.convertValue(livroRepository.save(livro), LivroDTO.class);
     }
 }
