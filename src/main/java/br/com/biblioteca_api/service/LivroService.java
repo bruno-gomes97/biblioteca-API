@@ -9,6 +9,9 @@ import br.com.biblioteca_api.repository.LivroRepository;
 import br.com.biblioteca_api.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -86,12 +89,12 @@ public class LivroService {
         return objectMapper.convertValue(livroRepository.save(livro), LivroDTO.class);
     }
 
-    public List<LivroDTO> listarTodosLivros() {
-        List<LivroEntity> lista = livroRepository.findAll();
+    public Page<LivroDTO> listarTodosLivros(Integer pagina, Integer tamanhoPagina) {
+        Pageable pageRequest = PageRequest.of(pagina, tamanhoPagina);
+        Page<LivroEntity> livroPage = livroRepository.findAll(pageRequest);
 
-        return lista.stream()
-                .map(livro -> objectMapper.convertValue(livro, LivroDTO.class))
-                .collect(Collectors.toList());
+        return livroPage.map(livro -> objectMapper.convertValue(livro, LivroDTO.class));
+
     }
 
     public LivroDTO autalizarLivroComUsuario(String titulo, String cpf) throws RegraDeNegocioException {

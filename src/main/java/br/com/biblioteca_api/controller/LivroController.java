@@ -5,6 +5,8 @@ import br.com.biblioteca_api.enums.Genero;
 import br.com.biblioteca_api.exceptions.RegraDeNegocioException;
 import br.com.biblioteca_api.service.LivroService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +16,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("livros")
+@RequiredArgsConstructor
 public class LivroController {
 
     private final LivroService livroService;
-
-    public LivroController(LivroService livroService) {
-        this.livroService = livroService;
-    }
 
     @PostMapping
     public ResponseEntity<LivroDTO> salvar( @Valid @RequestBody LivroDTO dto) throws RegraDeNegocioException {
@@ -38,8 +37,10 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroDTO>> listarTodosLivros() {
-        return new ResponseEntity<>(livroService.listarTodosLivros(), HttpStatus.OK);
+    public ResponseEntity<Page<LivroDTO>> listarTodosLivros(@RequestParam(value = "pagina", defaultValue = "0") Integer pagina,
+                                                            @RequestParam(value = "tamanhoPagina", defaultValue = "10") Integer tamanhoPagina) {
+        Page<LivroDTO> livros = livroService.listarTodosLivros(pagina, tamanhoPagina);
+        return ResponseEntity.ok(livros);
     }
 
     @DeleteMapping("{id}")

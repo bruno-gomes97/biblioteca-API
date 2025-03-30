@@ -40,7 +40,7 @@ public class LivroEntity {
     private String isbn;
 
     @JoinColumn(name = "id_usuario")
-    @OneToOne
+    @ManyToOne
     @JsonBackReference
     private UsuarioEntity usuario;
 }

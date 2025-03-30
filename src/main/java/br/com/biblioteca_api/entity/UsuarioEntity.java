@@ -1,5 +1,6 @@
 package br.com.biblioteca_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -46,7 +47,7 @@ public class UsuarioEntity {
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
 
-    @OneToMany(mappedBy = "usuario")
-    @JsonManagedReference
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("usuario")
     private List<LivroEntity> livros = new ArrayList<>();
 }
